@@ -7,13 +7,42 @@ def print_menu():
 2. Log into account
 0. Exit""")
 
+def luhn(card):
+    # it receives a string
+    # print(card)
+    card_numbers = list(card)
+    card_numbers_int = [int(item) for item in card_numbers if item ]
+    index = 0
+    for item in card_numbers_int:
+        if index % 2 == 0:
+            card_numbers_int[index] = item * 2
+        index += 1
+    # print(card_numbers_int)
+    index = 0
+    for item in card_numbers_int:
+        if item > 9 :
+            card_numbers_int[index] = item - 9
+        index += 1
+    # print(card_numbers_int)
+    suma = 0
+    for item in card_numbers_int:
+        suma += item
+    # print("suma:", suma)
+    resto = suma % 10
+    checksum = 0
+    if resto > 0:
+        checksum = 10 - resto
+    # print("check:", checksum)
+    return str(checksum)
 
 def create_account():
     #todo chequear que no existe ya
     iin = str(400000)
     acc_number = str(random.randint(0, 999999999)).zfill(9)
-    checksum = str(random.randint(0, 9))
-    full_number = iin + acc_number + checksum
+    #checksum = str(random.randint(0, 9))
+    full_number = iin + acc_number
+    checksum = luhn(full_number)
+    full_number = full_number + checksum
     return full_number
 
 def create_pin():

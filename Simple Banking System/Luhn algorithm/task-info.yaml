@@ -189,5 +189,8 @@ files:
         BankingSystem('banking.banking').run_tests()
   learner_created: false
 feedback_link: https://hyperskill.org/projects/109/stages/592/implement#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Mon, 25 Jan 2021 16:41:14 UTC
 record: -1
