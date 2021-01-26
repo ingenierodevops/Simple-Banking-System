@@ -1,6 +1,6 @@
 # Write your code here
 import random
-
+import sqlite3
 
 def print_menu():
     print("""1. Create an account
@@ -48,24 +48,69 @@ def create_account():
 def create_pin():
     return str(random.randint(0, 9999)).zfill(4)
 
-def check_card(lista_tarjetas, numero, pin):
-    print("lista", lista_tarjetas)
+def check_card(numero, pin):
     print("numero", str(numero))
     print("pin",str(pin))
-    if numero in lista_tarjetas.keys() and lista_tarjetas[numero] == pin:
-        print("You have successfully logged in!")
-        print()
-        return True
+
+    conn = sqlite3.connect('card.s3db')
+    cur = conn.cursor()
+
+    # creamos la tabla
+    cur.execute("SELECT pin FROM card WHERE number = '{}';".format(numero))
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        db_PIN = row[0]
+        print("extracted PIN:", str(db_PIN))
+
+        if db_PIN == pin:
+            print("You have successfully logged in!")
+            print()
+            return True
+        else:
+            print("Wrong card number or PIN!")
+            print()
+            return False
     else:
         print("Wrong card number or PIN!")
         print()
         return False
 
 
+
+def crear_base_datos():
+    conn = sqlite3.connect('card.s3db')
+    cur = conn.cursor()
+
+    # borramos la tabla card si ya existia
+    # cur.execute("""DROP TABLE card""")
+    # conn.commit()
+
+    # creamos la tabla sólo si no existe
+    cur.execute("""CREATE TABLE IF NOT EXISTS card (
+                id INTEGER,
+                number TEXT,
+                pin TEXT,
+                balance INTEGER DEFAULT 0);""")
+    conn.commit()
+    conn.close()
+
+def guardar_cuenta(cuenta, PIN):
+    conn = sqlite3.connect('card.s3db')
+    cur = conn.cursor()
+    sql_string = "INSERT INTO card (number, pin) VALUES ('{}', '{}');".format(cuenta, PIN)
+    cur.execute(sql_string)
+    conn.commit()
+    conn.close()
+
+
+
 cards = {}
 account_number = 0
 logged = False
 continuar = True
+
+crear_base_datos()
 
 while continuar == True:
 
@@ -86,12 +131,14 @@ while continuar == True:
             print("Your card PIN:")
             print(pin_number)
             cards[card_number] = pin_number
+            guardar_cuenta(card_number, pin_number)
         elif response == "2":
             print("Enter your card number:")
             card_number_readed = input()
             print("Enter your PIN:")
             pin_number_readed = input()
-            logged = check_card(cards, card_number_readed, pin_number_readed)
+            # logged = check_card(cards, card_number_readed, pin_number_readed)
+            logged = check_card(card_number_readed, pin_number_readed)
         elif response == "0":
             print("Bye!")
             continuar = False
